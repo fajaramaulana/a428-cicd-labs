@@ -1,10 +1,14 @@
 node {
-    // Set environment variable using 'env' in scripted pipeline
     env.CI = 'true'
 
     try {
-        // Use a Node.js Docker image
         docker.image('node:16-buster-slim').inside {
+            // Print the current directory
+            sh 'pwd'
+
+            // Ensure package.json is present
+            sh 'ls -l'
+
             // Stage: Build
             stage('Build') {
                 echo 'Installing dependencies...'
