@@ -4,7 +4,7 @@ node {
 
     try {
         // Use a Node.js Docker image
-        docker.image('node:lts-buster-slim').inside {
+        docker.image('node:16-buster-slim').inside {
             // Stage: Build
             stage('Build') {
                 echo 'Installing dependencies...'
