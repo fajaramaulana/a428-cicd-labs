@@ -3,6 +3,15 @@ node {
     env.CI = 'true'
 
     try {
+        // Stage: Install Node.js and npm if necessary
+        stage('Install Node.js') {
+            echo 'Installing Node.js and npm...'
+            sh '''
+            curl -sL https://deb.nodesource.com/setup_14.x | bash -
+            apt-get install -y nodejs
+            '''
+        }
+
         // Stage: Build
         stage('Build') {
             echo 'Installing dependencies...'
