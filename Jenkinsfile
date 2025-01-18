@@ -1,29 +1,29 @@
 node {
-    // Menetapkan environment variable secara manual
-    environment.CI = 'true'
+    // Set environment variable using 'env' in scripted pipeline
+    env.CI = 'true'
 
     try {
-        // Stage pertama: Build
+        // Stage: Build
         stage('Build') {
             echo 'Installing dependencies...'
             sh 'npm install'
         }
 
-        // Stage kedua: Test
+        // Stage: Test
         stage('Test') {
             echo 'Running tests...'
             sh './jenkins/scripts/test.sh'
         }
 
-        // Stage ketiga: Deliver
+        // Stage: Deliver
         stage('Deliver') {
             echo 'Running deliver script...'
             sh './jenkins/scripts/deliver.sh'
 
-            // Menunggu input dari pengguna
+            // Wait for user input
             input message: 'Finished using the website? (Click "Proceed" to continue)'
 
-            // Menjalankan kill script setelah input
+            // Run kill script after input
             sh './jenkins/scripts/kill.sh'
         }
 

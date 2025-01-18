@@ -1,34 +1,30 @@
-node {
-    // Menetapkan environment variable secara manual
-    environment.CI = 'true'
-
-    try {
-        // Stage pertama: Build
+pipeline {
+    agent {
+        docker {
+            image 'node:lts-buster-slim'
+            args '-p 3000:3000'
+        }
+    }
+    environment {
+        CI = 'true'
+    }
+    stages {
         stage('Build') {
-            echo 'Installing dependencies...'
-            sh 'npm install'
+            steps {
+                sh 'npm install'
+            }
         }
-
-        // Stage kedua: Test
         stage('Test') {
-            echo 'Running tests...'
-            sh './jenkins/scripts/test.sh'
+            steps {
+                sh './jenkins/scripts/test.sh'
+            }
         }
-
-        // Stage ketiga: Deliver
         stage('Deliver') {
-            echo 'Running deliver script...'
-            sh './jenkins/scripts/deliver.sh'
-
-            // Menunggu input dari pengguna
-            input message: 'Finished using the website? (Click "Proceed" to continue)'
-
-            // Menjalankan kill script setelah input
-            sh './jenkins/scripts/kill.sh'
+            steps {
+                sh './jenkins/scripts/deliver.sh'
+                input message: 'Finished using the website? (Click "Proceed" to continue)'
+                sh './jenkins/scripts/kill.sh'
+            }
         }
-
-    } catch (Exception e) {
-        currentBuild.result = 'FAILURE'
-        throw e
     }
 }
