@@ -3,11 +3,11 @@ node {
 
     try {
         docker.image('node:16-buster-slim').inside {
-            // Print the current directory
-            sh 'pwd'
+            // Check the working directory inside the container
+            sh 'pwd'  // Print the current directory
 
-            // Ensure package.json is present
-            sh 'ls -l'
+            // List all files in the current directory
+            sh 'ls -l'  // This will show all files, including package.json if it's there
 
             // Stage: Build
             stage('Build') {
