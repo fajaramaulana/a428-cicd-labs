@@ -22,13 +22,13 @@ node {
                 sh './jenkins/scripts/test.sh'
             }
 
-            // Stage: Deliver
-            stage('Deliver') {
-                echo 'Running deliver script...'
+            // Stage: Deploy
+            stage('Deploy') {
+                echo 'Running Deploy script...'
                 sh './jenkins/scripts/deliver.sh'
 
                 // Wait for user input
-                input message: 'Finished using the website? (Click "Proceed" to continue)'
+                input message: 'Sudah selesai menggunakan React App? (Klik "Proceed" untuk mengakhiri)'
 
                 // Run kill script after input
                 sh './jenkins/scripts/kill.sh'
