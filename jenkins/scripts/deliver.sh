@@ -6,7 +6,13 @@ echo '"/var/jenkins_home/workspace/simple-node-js-react-app" directory),'
 echo 'correctly bundles React in production mode and optimizes the build for'
 echo 'the best performance.'
 set -x
+
+# Set the NODE_OPTIONS environment variable
+export NODE_OPTIONS=--openssl-legacy-provider
+
+# Run the build command
 npm run build
+
 set +x
 
 echo 'The following "npm" command runs your Node.js/React application in'

@@ -5,33 +5,28 @@ node {
         // Ensure Git repository is checked out
         checkout scm
 
-        docker.image('node:16-buster-slim').inside {
-            // Check the working directory inside the container
-            sh 'pwd'  // Print the current directory
-            sh 'ls -l'  // This will show all files, including package.json if it's there
+        stage('Prepare Environment') {
+            docker.image('node:lts-buster-slim').inside('-p 3000:3000 -it') {
+                sh 'pwd'  // Print the current directory
+                sh 'ls -l'  // This will show all files, including package.json if it's there
+                stage('Build') {
+                    echo 'Installing dependencies...'
+                    sh 'rm -rf node_modules package-lock.json && npm install'
+                }
 
-            // Stage: Build
-            stage('Build') {
-                echo 'Installing dependencies...'
-                sh 'npm install'
-            }
+                stage('Test') {
+                    echo 'Running tests...'
+                    sh './jenkins/scripts/test.sh'
+                }
 
-            // Stage: Test
-            stage('Test') {
-                echo 'Running tests...'
-                sh './jenkins/scripts/test.sh'
-            }
+                stage('Deliver') {
+                    echo 'Running deploy script...'
+                    sh './jenkins/scripts/deliver.sh'
 
-            // Stage: Deploy
-            stage('Deploy') {
-                echo 'Running Deploy script...'
-                sh './jenkins/scripts/deliver.sh'
+                    input message: 'Sudah selesai menggunakan React App? (Klik "Proceed" untuk mengakhiri)'
 
-                // Wait for user input
-                input message: 'Sudah selesai menggunakan React App? (Klik "Proceed" untuk mengakhiri)'
-
-                // Run kill script after input
-                sh './jenkins/scripts/kill.sh'
+                    sh './jenkins/scripts/kill.sh'
+                }
             }
         }
     } catch (Exception e) {
