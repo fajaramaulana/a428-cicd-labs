@@ -1,21 +1,65 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+function App() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!email || !password) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    // Here you would typically make an API call to authenticate the user
+    console.log('Email:', email);
+    console.log('Password:', password);
+
+    // Reset form fields
+    setEmail('');
+    setPassword('');
+
+    // Simulate successful login
+    alert('Login successful!');
+  };
+
+  return (
+    <div className="App">
+      <div className="login-container">
+        <h2>Login</h2>
+        <form onSubmit={handleLogin}>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <button type="submit">Login</button>
+        </form>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default App;
