@@ -12,12 +12,10 @@ node {
 
                 stage('Build') {
                     echo 'Configuring NPM cache...'
-                    sh 'mkdir -p ~/.npm'
-                    sh 'echo "cache=~/.npm" >> ~/.npmrc'
 
                     echo 'Installing dependencies...'
-                    sh 'rm -rf node_modules'  // Only remove node_modules, not package-lock.json
-                    sh 'npm ci --cache ~/.npm'
+                    sh 'rm -rf node_modules'
+                    sh 'npm install'
                 }
 
                 stage('Test') {
