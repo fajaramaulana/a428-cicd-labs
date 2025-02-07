@@ -9,11 +9,14 @@ node {
             docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
                 sh 'pwd'
                 sh 'ls -l'
-                
+
                 stage('Build') {
+                    echo 'Configuring NPM cache...'
+                    sh 'mkdir -p ~/.npm'
+                    sh 'echo "cache=~/.npm" >> ~/.npmrc'
+
                     echo 'Installing dependencies...'
-                    sh 'npm cache clean --force'  // Clean npm cache
-                    sh 'npm install --prefer-offline --no-audit --verbose'  // Faster install with detailed logs
+                    sh 'rm -rf node_modules package-lock.json && npm ci --cache ~/.npm'
                 }
 
                 stage('Test') {
