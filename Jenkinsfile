@@ -6,7 +6,7 @@ node {
 
         stage('Prepare Environment') {
             // Use Docker volume to persist node_modules between builds
-            docker.image('node:lts-buster-slim').inside('-p 3000:3000 -v $WORKSPACE/node_modules:/workspace/node_modules') {
+            docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
                 sh 'pwd'
                 sh 'ls -l'
                 
