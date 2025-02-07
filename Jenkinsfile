@@ -5,12 +5,15 @@ node {
         checkout scm
 
         stage('Prepare Environment') {
-            docker.image('node:lts-buster-slim').inside('-p 3000:3000 -it') {
+            // Use Docker volume to persist node_modules between builds
+            docker.image('node:lts-buster-slim').inside('-p 3000:3000 -v $WORKSPACE/node_modules:/workspace/node_modules') {
                 sh 'pwd'
                 sh 'ls -l'
+                
                 stage('Build') {
                     echo 'Installing dependencies...'
-                    sh 'rm -rf node_modules package-lock.json && npm install'
+                    sh 'npm cache clean --force'  // Clean npm cache
+                    sh 'npm install --prefer-offline --no-audit --verbose'  // Faster install with detailed logs
                 }
 
                 stage('Test') {
