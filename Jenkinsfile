@@ -1,6 +1,6 @@
 node {
     env.CI = 'true'
-
+    env.NODE_OPTIONS = "--max_old_space_size=1024"
     try {
         checkout scm
 
