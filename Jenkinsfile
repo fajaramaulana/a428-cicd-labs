@@ -16,7 +16,8 @@ node {
                     sh 'echo "cache=~/.npm" >> ~/.npmrc'
 
                     echo 'Installing dependencies...'
-                    sh 'rm -rf node_modules package-lock.json && npm ci --cache ~/.npm'
+                    sh 'rm -rf node_modules'  // Only remove node_modules, not package-lock.json
+                    sh 'npm ci --cache ~/.npm'
                 }
 
                 stage('Test') {
