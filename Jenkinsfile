@@ -15,7 +15,7 @@ node {
 
                     echo 'Installing dependencies...'
                     sh 'rm -rf node_modules'
-                    sh 'npm install --no-audit --verbose'
+                    sh 'npm install --no-audit --no-optional --verbose'
                 }
 
                 stage('Test') {
