@@ -58,10 +58,12 @@ node {
             stage('Transfer Files to Remote Server') {
                 withCredentials([sshUserPrivateKey(credentialsId: 'sencod-instance-ssh-key',
                                                    keyFileVariable: 'DEPLOY_KEY',
-                                                   usernameVariable: 'DEPLOY_USER')]) {
+                                                   usernameVariable: 'DEPLOY_USER'),
+                                string(credentialsId: 'SECOND_INSTANCE_IP', variable: 'DEPLOY_HOST')
+                ]) {
                     echo "Transferring files..."
                     sh '''
-                        scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r dist/* ${DEPLOY_USER}@13.228.170.129:/var/www/html/
+                        scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r dist/* ${DEPLOY_USER}@$DEPLOY_HOST:/var/www/html/
                     '''
                 }
             }
