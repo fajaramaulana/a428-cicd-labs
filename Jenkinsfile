@@ -5,10 +5,7 @@ node {
     try {
         checkout scm
 
-        // Run the entire pipeline inside the Docker container as root.
-        // The "-u root" flag runs commands as root, and "-p 3000:3000" publishes the port.
         docker.image('node:lts-buster-slim').inside('-u root -p 3000:3000') {
-
             stage('Prepare Environment') {
                 echo 'Using Node.js LTS image...'
                 sh 'pwd'
@@ -49,7 +46,6 @@ node {
                 }
 
                 stage('Transfer Files to Remote Server') {
-                    // Retrieve credentials: the SSH key and the remote server IP are stored in Jenkins.
                     withCredentials([
                         sshUserPrivateKey(credentialsId: 'second-instance-ssh-key',
                                           keyFileVariable: 'DEPLOY_KEY',
