@@ -14,6 +14,8 @@ export NODE_OPTIONS=--openssl-legacy-provider
 npm run build
 
 set +x
+echo "Listing directories after build:"
+ls -la
 
 echo 'The following "npm" command runs your Node.js/React application in'
 echo 'development mode and makes the application available for web browsing.'
