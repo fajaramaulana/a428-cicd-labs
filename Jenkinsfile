@@ -5,7 +5,10 @@ node {
     try {
         checkout scm
 
-        docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
+        // Run the entire pipeline inside the Docker container as root.
+        // The "-u root" flag runs commands as root, and "-p 3000:3000" publishes the port.
+        docker.image('node:lts-buster-slim').inside('-u root -p 3000:3000') {
+
             stage('Prepare Environment') {
                 echo 'Using Node.js LTS image...'
                 sh 'pwd'
@@ -24,17 +27,18 @@ node {
                 sh './jenkins/scripts/test.sh'
             }
 
+            stage('Deliver') {
+                echo 'Running deploy script...'
+                sh './jenkins/scripts/deliver.sh'
+                echo 'Waiting for 60 seconds'
+                sleep 60
+            }
+
             stage('Manual Approval') {
                 input message: 'Lanjutkan ke tahap Deploy?'
             }
 
             stage('Deploy') {
-                echo 'Running deploy script...'
-                sh './jenkins/scripts/deliver.sh'
-
-                echo 'Waiting for 60 seconds'
-                sleep 60
-
                 stage('Ensure SSH Client is Installed') {
                     echo 'Checking and installing SSH client...'
                     sh '''
@@ -45,13 +49,14 @@ node {
                 }
 
                 stage('Transfer Files to Remote Server') {
+                    // Retrieve credentials: the SSH key and the remote server IP are stored in Jenkins.
                     withCredentials([
                         sshUserPrivateKey(credentialsId: 'sencod-instance-ssh-key',
                                           keyFileVariable: 'DEPLOY_KEY',
                                           usernameVariable: 'DEPLOY_USER'),
                         string(credentialsId: 'REMOTE_HOST_IP', variable: 'DEPLOY_HOST')
                     ]) {
-                        echo "Transferring files to $DEPLOY_HOST..."
+                        echo "Transferring files to \$DEPLOY_HOST..."
                         sh '''
                             scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r dist/* ${DEPLOY_USER}@$DEPLOY_HOST:/var/www/html/
                         '''
@@ -59,6 +64,7 @@ node {
                 }
 
                 stage('Cleanup') {
+                    echo 'Cleaning up...'
                     sh './jenkins/scripts/kill.sh'
                 }
             }
