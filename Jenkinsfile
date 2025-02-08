@@ -54,7 +54,7 @@ node {
                         sshUserPrivateKey(credentialsId: 'second-instance-ssh-key',
                                           keyFileVariable: 'DEPLOY_KEY',
                                           usernameVariable: 'DEPLOY_USER'),
-                        string(credentialsId: 'REMOTE_HOST_IP', variable: 'DEPLOY_HOST')
+                        string(credentialsId: 'SECOND_INSTANCE_IP', variable: 'DEPLOY_HOST')
                     ]) {
                         echo "Transferring files to \$DEPLOY_HOST..."
                         sh '''
