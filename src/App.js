@@ -45,7 +45,7 @@ function App() {
   return (
     <div className="App">
       <div className="login-container">
-        <h2>Login</h2>
+        <h2>Login dulu yuk</h2>
         <form onSubmit={handleLogin}>
           <div className="input-group">
             <label htmlFor="email">Email</label>
