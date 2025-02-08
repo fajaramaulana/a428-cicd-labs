@@ -56,6 +56,11 @@ node {
                                           usernameVariable: 'DEPLOY_USER'),
                         string(credentialsId: 'SECOND_INSTANCE_IP', variable: 'DEPLOY_HOST')
                     ]) {
+                        echo "Checking if /var/www/html exists on \$DEPLOY_HOST..."
+                        sh '''
+                            ssh -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no ${DEPLOY_USER}@$DEPLOY_HOST 'if [ -d /var/www/html ]; then echo "/var/www/html already exists"; else mkdir -p /var/www/html && echo "Created /var/www/html"; fi'
+                        '''
+                        
                         echo "Transferring files to \$DEPLOY_HOST..."
                         sh '''
                             scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r build/* ${DEPLOY_USER}@$DEPLOY_HOST:/var/www/html/
