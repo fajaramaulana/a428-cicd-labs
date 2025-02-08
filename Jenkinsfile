@@ -1,6 +1,6 @@
 node {
     env.CI = 'true'
-    env.NODE_OPTIONS = "--max_old_space_size=1024"
+    env.NODE_OPTIONS = '--max_old_space_size=1024'
     try {
         checkout scm
 
@@ -31,6 +31,11 @@ node {
                     echo 'Running deploy script...'
                     sh './jenkins/scripts/deliver.sh'
                     sleep 60
+
+                    // Menggunakan credential untuk mengirim file build ke instance kedua
+                    withCredentials([sshUserPrivateKey(credentialsId: 'my-deploy-key', keyFileVariable: 'DEPLOY_KEY', usernameVariable: 'DEPLOY_USER')]) {
+                        sh """scp -i ${DEPLOY_KEY} -o StrictHostKeyChecking=no -r dist/* ${DEPLOY_USER}@13.228.170.129:/var/www/html/"""
+                    }
                     sh './jenkins/scripts/kill.sh'
                 }
             }
