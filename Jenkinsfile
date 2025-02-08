@@ -5,72 +5,62 @@ node {
     try {
         checkout scm
 
-        stage('Prepare Environment') {
-            echo "Using Node.js LTS image..."
-            docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
+        docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
+            stage('Prepare Environment') {
+                echo 'Using Node.js LTS image...'
                 sh 'pwd'
                 sh 'ls -l'
             }
-        }
 
-        stage('Build') {
-            echo 'Configuring NPM cache...'
-            docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
+            stage('Build') {
+                echo 'Configuring NPM cache...'
                 echo 'Installing dependencies...'
                 sh 'rm -rf node_modules'
                 sh 'npm install --no-audit --no-optional --verbose'
             }
-        }
 
-        stage('Test') {
-            echo 'Running tests...'
-            docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
+            stage('Test') {
+                echo 'Running tests...'
                 sh './jenkins/scripts/test.sh'
             }
-        }
 
-        stage('Manual Approval') {
-            input message: 'Lanjutkan ke tahap Deploy?'
-        }
+            stage('Manual Approval') {
+                input message: 'Lanjutkan ke tahap Deploy?'
+            }
 
-        stage('Deploy') {
-            echo 'Running deploy script...'
-            docker.image('node:lts-buster-slim').inside('-p 3000:3000') {
+            stage('Deploy') {
+                echo 'Running deploy script...'
                 sh './jenkins/scripts/deliver.sh'
-            }
 
-            stage('Waiting 60s') {
-                echo 'Waiting for 60 seconds...'
+                echo 'Waiting for 60 seconds'
                 sleep 60
-            }
 
-            // Install SSH client if not available
-            stage('Install SSH Client') {
-                echo "Checking and installing SSH client..."
-                sh '''
-                    if ! command -v scp &> /dev/null; then
-                        sudo apt-get update && sudo apt-get install -y openssh-client
-                    fi
-                '''
-            }
-
-            // Securely transfer the build artifacts
-            stage('Transfer Files to Remote Server') {
-                withCredentials([sshUserPrivateKey(credentialsId: 'sencod-instance-ssh-key',
-                                                   keyFileVariable: 'DEPLOY_KEY',
-                                                   usernameVariable: 'DEPLOY_USER'),
-                                string(credentialsId: 'SECOND_INSTANCE_IP', variable: 'DEPLOY_HOST')
-                ]) {
-                    echo "Transferring files..."
+                stage('Ensure SSH Client is Installed') {
+                    echo 'Checking and installing SSH client...'
                     sh '''
-                        scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r dist/* ${DEPLOY_USER}@$DEPLOY_HOST:/var/www/html/
+                        if ! command -v scp &> /dev/null; then
+                            apt-get update && apt-get install -y openssh-client
+                        fi
                     '''
                 }
-            }
 
-            // Wait and execute cleanup
-            stage('Cleanup') {
-                sh './jenkins/scripts/kill.sh'
+                stage('Transfer Files to Remote Server') {
+                    withCredentials([
+                        sshUserPrivateKey(credentialsId: 'sencod-instance-ssh-key',
+                                          keyFileVariable: 'DEPLOY_KEY',
+                                          usernameVariable: 'DEPLOY_USER'),
+                        string(credentialsId: 'REMOTE_HOST_IP', variable: 'DEPLOY_HOST')
+                    ]) {
+                        echo "Transferring files to $DEPLOY_HOST..."
+                        sh '''
+                            scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r dist/* ${DEPLOY_USER}@$DEPLOY_HOST:/var/www/html/
+                        '''
+                    }
+                }
+
+                stage('Cleanup') {
+                    sh './jenkins/scripts/kill.sh'
+                }
             }
         }
     } catch (Exception e) {
