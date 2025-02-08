@@ -58,7 +58,7 @@ node {
                     ]) {
                         echo "Transferring files to \$DEPLOY_HOST..."
                         sh '''
-                            scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r dist/* ${DEPLOY_USER}@$DEPLOY_HOST:/var/www/html/
+                            scp -i "$DEPLOY_KEY" -o StrictHostKeyChecking=no -r build/* ${DEPLOY_USER}@$DEPLOY_HOST:/var/www/html/
                         '''
                     }
                 }
