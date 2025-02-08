@@ -51,7 +51,7 @@ node {
                 stage('Transfer Files to Remote Server') {
                     // Retrieve credentials: the SSH key and the remote server IP are stored in Jenkins.
                     withCredentials([
-                        sshUserPrivateKey(credentialsId: 'sencod-instance-ssh-key',
+                        sshUserPrivateKey(credentialsId: 'second-instance-ssh-key',
                                           keyFileVariable: 'DEPLOY_KEY',
                                           usernameVariable: 'DEPLOY_USER'),
                         string(credentialsId: 'REMOTE_HOST_IP', variable: 'DEPLOY_HOST')
